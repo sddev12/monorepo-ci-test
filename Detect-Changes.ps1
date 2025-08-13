@@ -1,16 +1,17 @@
+Push-Location $PSScriptRoot
+
+$ErrorActionPreference = "Stop"
+
+Write-Output "Running git diff...`n"
 $files = git diff-tree --no-commit-id --name-only -r main
 
-Write-Output "Git Files: $files"
-
-# $filePaths = "azure/aks/app_one/checks/check.go`napp_two/main.go"
+Write-Output "Changed files: $files`n"
 
 $paths = $files -split "\n"
-$paths
-
-# exit
 
 $parentDirs = @()
 
+Write-Output "Detecting checks for building..."
 foreach ($path in $paths) {
     $parentDir = $path
 
@@ -30,15 +31,8 @@ foreach ($path in $paths) {
     }
 }
 
-$parentDirs.Length
 $parentDirs = $parentDirs | Sort-Object -Unique
-$parentDirs
 
+Write-Output "Checks to be built: $parentDirs"
 
-foreach ($app in $parentDirs) {
-    $appName = $app.Replace("/", "_")
-    Push-Location $PSScriptRoot
-    Set-Location "./$app"
-    go build -o $appName
-    Pop-Location
-}
+$parentDirs | Out-File -FilePath "$PSScriptRoot/checks_for_build.json"
