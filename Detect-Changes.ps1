@@ -1,12 +1,12 @@
 $files = git diff-tree --no-commit-id --name-only -r main
 
+Write-Output "Git Files: $files"
+
 # $filePaths = "azure/aks/app_one/checks/check.go`napp_two/main.go"
 
 $paths = $files -split "\n"
+$paths
 
-$paths.Length
-$paths[0]
-$paths[1]
 # exit
 
 $parentDirs = @()
@@ -31,6 +31,9 @@ foreach ($path in $paths) {
 }
 
 $parentDirs.Length
+$parentDirs = $parentDirs | Sort-Object -Unique
+$parentDirs
+
 
 foreach ($app in $parentDirs) {
     $appName = $app.Replace("/", "_")
