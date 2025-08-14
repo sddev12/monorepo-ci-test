@@ -3,7 +3,9 @@ Push-Location $PSScriptRoot
 $ErrorActionPreference = "Stop"
 
 Write-Output "Running git diff...`n"
-$files = git diff-tree --no-commit-id --name-only -r main
+# $files = git diff-tree --no-commit-id --name-only -r main
+
+$files = "azure/aks/app_one/main.go`napp_two/main.go"
 
 Write-Output "Changed files: $files`n"
 
@@ -35,4 +37,4 @@ $parentDirs = $parentDirs | Sort-Object -Unique
 
 Write-Output "Checks to be built: $parentDirs"
 
-$parentDirs | Out-File -FilePath "$PSScriptRoot/checks_for_build.json"
+$parentDirs | ConvertTo-Json -AsArray -Compress >> $env:GITHUB_OUTPUT

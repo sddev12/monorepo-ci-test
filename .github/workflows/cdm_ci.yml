@@ -2,23 +2,49 @@ name: cdm_ci
 
 on:
   push:
-    branches: []
+    branches: [main]
   pull_request:
-    branches: []
+    branches: [main]
 
 jobs:
+  detect_builds:
+    runs-on: ubuntu-latest
+    outputs:
+      checks: ${{ steps.detect_check_builds.outputs.checks }}
+    steps:
+      - id: detect_check_builds
+        run: |
+          pwsh ./Detect-Changes.ps1
+
   build:
     runs-on: ubuntu-latest
+    needs: detect_builds
+    outputs:
+      releases: ${{ steps.build.outputs.releases }}
+    strategy:
+      matrix:
+        check: ${{ fromJson(needs.detect_builds.outputs.checks) }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.20'
+          go-version: '1.22.2'
 
-      - name: Build
-        run: go build -v ./...
+      - name: 'build ${{ matrix.check }}'
+        id: build
+        run: |
+          $ErrorActionPreference = "stop"
+          Set-Location ${{ matrix.check }}
+          Write-Output "Building check: ${{ matrix.check }}"
+          $buildName = "${{ matrix.check}}" -replace "/", "_"
+          go build -o $buildName
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Build failed: ${{ matrix.check }}"
+            exit 1
+          }
 
-      - name: Test
-        run: go test -v ./...
+          Write-Output "Build succeeded: ${{ matrix.check }}"
+          exit 0
+        shell: pwsh
