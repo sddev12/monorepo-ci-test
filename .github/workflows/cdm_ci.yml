@@ -1,10 +1,14 @@
-name: cdm_ci
+name: checks_ci
 
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**/version'
   pull_request:
     branches: [main]
+    paths-ignore:
+      - '**/version'
 
 jobs:
   detect_builds:
@@ -32,11 +36,40 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         name: 'Checkout code'
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
           go-version: '1.22.2'
+
+      - name: 'Bump Version'
+        id: bump_version
+        if: github.ref == 'refs/heads/main'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "stop"
+
+          $versionString = Get-Content "${{ matrix.check }}/version"
+
+          Write-Output "Current Version: $versionString"
+
+          $versionSplit = $versionString -split "\." | ForEach-Object { [int]$_ }
+
+          $versionSplit[-1]++
+
+          $newVersion = $versionSplit -join "."
+
+          Write-Output "New Version: $newVersion"
+
+          $newVersion | Out-File "${{ matrix.check }}/version"
+
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add "${{ matrix.check }}/version"
+          git commit -m "Bump version to $newVersion"
+          git push origin main
 
       - name: 'build ${{ matrix.check }}'
         id: build

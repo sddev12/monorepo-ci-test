@@ -3,9 +3,7 @@ Push-Location $PSScriptRoot
 $ErrorActionPreference = "Stop"
 
 Write-Output "Running git diff...`n"
-# $files = git diff-tree --no-commit-id --name-only -r main
-
-$files = "azure/aks/app_one/main.go`napp_two/main.go"
+$files = git diff-tree --no-commit-id --name-only -r HEAD
 
 Write-Output "Changed files: $files`n"
 
