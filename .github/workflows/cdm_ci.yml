@@ -13,6 +13,7 @@ jobs:
       checks: ${{ steps.detect_check_builds.outputs.checks }}
     steps:
       - uses: actions/checkout@v4
+        name: 'Checkout code'
 
       - name: 'Detect Changes'
         id: detect_check_builds
@@ -30,6 +31,7 @@ jobs:
         check: ${{ fromJson(needs.detect_builds.outputs.checks) }}
     steps:
       - uses: actions/checkout@v4
+        name: 'Checkout code'
 
       - name: Set up Go
         uses: actions/setup-go@v4

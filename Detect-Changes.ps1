@@ -37,4 +37,4 @@ $parentDirs = $parentDirs | Sort-Object -Unique
 
 Write-Output "Checks to be built: $parentDirs"
 
-$parentDirs | ConvertTo-Json -AsArray -Compress >> $env:GITHUB_OUTPUT
+"checks=$($parentDirs | ConvertTo-Json -AsArray -Compress)" >> $env:GITHUB_OUTPUT
