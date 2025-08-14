@@ -12,7 +12,10 @@ jobs:
     outputs:
       checks: ${{ steps.detect_check_builds.outputs.checks }}
     steps:
-      - id: detect_check_builds
+      - uses: actions/checkout@v4
+
+      - name: 'Detect Changes'
+        id: detect_check_builds
         shell: pwsh
         run: |
           ./Detect-Changes.ps1
