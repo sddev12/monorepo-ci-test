@@ -124,6 +124,7 @@ jobs:
         if: success()
         run: |
           gh release upload ${{ steps.build.outputs.releaseName }} \
-          --assets "${{ matrix.check }}/${{ steps.build.outputs.binaryName }}"
+          "${{ matrix.check }}/${{ steps.build.outputs.binaryName }}" \
+          --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
