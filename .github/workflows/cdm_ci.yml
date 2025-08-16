@@ -99,6 +99,7 @@ jobs:
 
       - name: 'Create Tag'
         id: create_tag
+        if: success()
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
@@ -109,8 +110,9 @@ jobs:
 
       - name: 'Create Release'
         id: release
+        if: success()
         run: |
-          ghm release create ${{ steps.build.outputs.releaseName }} \
+          gh release create ${{ steps.build.outputs.releaseName }} \
           --title "${{ steps.build.outputs.releaseName }}" \
           --generate-notes
         env:
@@ -118,8 +120,9 @@ jobs:
 
       - name: 'Upload Release Assets'
         id: upload_assets
+        if: success()
         run: |
-          ghm release upload ${{ steps.build.outputs.releaseName }} \
+          gh release upload ${{ steps.build.outputs.releaseName }} \
           --assets "${{ matrix.check }}/${{ steps.build.outputs.releaseName }}"
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
