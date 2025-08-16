@@ -31,6 +31,12 @@ foreach ($path in $paths) {
     }
 }
 
+if ($parentDirs.Count -eq 0) {
+    Write-Output "No checks to build"
+    "skipbuild=true" >> $env:GITHUB_OUTPUT
+    exit 0
+}
+
 $parentDirs = $parentDirs | Sort-Object -Unique
 
 Write-Output "Checks to be built: $parentDirs"
