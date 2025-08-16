@@ -85,9 +85,10 @@ jobs:
           $version = "${{ steps.bump_version.outputs.version }}"
           Set-Location ${{ matrix.check }}
           Write-Output "Building check: ${{ matrix.check }}"
-          $buildName = "${{ matrix.check}}" -replace "/", "_"
-          go build -o $buildName
-          $releaseName = "{0}_{1}" -f $buildName, $version
+          $binaryName = "${{ matrix.check}}" -replace "/", "_"
+          "binaryName=$binaryName" >> $env:GITHUB_OUTPUT
+          go build -o $binaryName
+          $releaseName = "{0}_{1}" -f $binaryName, $version
           "releaseName=$releaseName" >> $env:GITHUB_OUTPUT
           if ($LASTEXITCODE -ne 0) {
             Write-Error "Build failed: ${{ matrix.check }}"
@@ -123,6 +124,6 @@ jobs:
         if: success()
         run: |
           gh release upload ${{ steps.build.outputs.releaseName }} \
-          --assets "${{ matrix.check }}/${{ steps.build.outputs.releaseName }}"
+          --assets "${{ matrix.check }}/${{ steps.build.outputs.binaryName }}"
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
