@@ -69,6 +69,8 @@ jobs:
 
           $newVersion | Out-File "${{ matrix.check }}/version"
 
+          "version=$newVersion" >> $env:GITHUB_OUTPUT
+
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add "${{ matrix.check }}/version"
@@ -80,10 +82,13 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "stop"
+          $version = ${{ steps.bump_version.outputs.version }}
           Set-Location ${{ matrix.check }}
           Write-Output "Building check: ${{ matrix.check }}"
           $buildName = "${{ matrix.check}}" -replace "/", "_"
           go build -o $buildName
+          $releaseName = "{0}_{1}" -f $buildName, $version
+          "releaseName=$releaseName" >> $env:GITHUB_OUTPUT
           if ($LASTEXITCODE -ne 0) {
             Write-Error "Build failed: ${{ matrix.check }}"
             exit 1
@@ -91,3 +96,30 @@ jobs:
 
           Write-Output "Build succeeded: ${{ matrix.check }}"
           exit 0
+
+      - name: 'Create Tag'
+        id: create_tag
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag ${{ steps.build.outputs.releaseName }}
+          git push origin ${{ steps.build.outputs.releaseName }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+
+      - name: 'Create Release'
+        id: release
+        run: |
+          ghm release create ${{ steps.build.outputs.releaseName }} \
+          --title "${{ steps.build.outputs.releaseName }}" \
+          --generate-notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+
+      - name: 'Upload Release Assets'
+        id: upload_assets
+        run: |
+          ghm release upload ${{ steps.build.outputs.releaseName }} \
+          --assets "${{ matrix.check }}/${{ steps.build.outputs.releaseName }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
