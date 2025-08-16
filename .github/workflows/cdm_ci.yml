@@ -69,7 +69,7 @@ jobs:
 
           $newVersion | Out-File "${{ matrix.check }}/version"
 
-          "version=$newVersion" >> $env:GITHUB_OUTPUT
+          "version=v$newVersion" >> $env:GITHUB_OUTPUT
 
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
