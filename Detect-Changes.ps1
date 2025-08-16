@@ -3,7 +3,7 @@ Push-Location $PSScriptRoot
 $ErrorActionPreference = "Stop"
 
 Write-Output "Running git diff...`n"
-$files = git diff-tree --no-commit-id --name-only -r HEAD
+$files = git diff --name-only HEAD~1 HEAD
 
 Write-Output "Changed files: $files`n"
 
