@@ -55,8 +55,6 @@ jobs:
         run: |
           $ErrorActionPreference = "stop"
 
-          git pull origin main
-
           $versionString = Get-Content "${{ matrix.check }}/version"
 
           Write-Output "Current Version: $versionString"
@@ -73,6 +71,7 @@ jobs:
 
           "version=v$newVersion" >> $env:GITHUB_OUTPUT
 
+          git pull origin main
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add "${{ matrix.check }}/version"
