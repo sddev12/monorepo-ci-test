@@ -55,6 +55,8 @@ jobs:
         run: |
           $ErrorActionPreference = "stop"
 
+          git pull origin main
+
           $versionString = Get-Content "${{ matrix.check }}/version"
 
           Write-Output "Current Version: $versionString"
