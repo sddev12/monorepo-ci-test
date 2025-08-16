@@ -82,7 +82,7 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "stop"
-          $version = ${{ steps.bump_version.outputs.version }}
+          $version = "${{ steps.bump_version.outputs.version }}"
           Set-Location ${{ matrix.check }}
           Write-Output "Building check: ${{ matrix.check }}"
           $buildName = "${{ matrix.check}}" -replace "/", "_"
